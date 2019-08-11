@@ -1,6 +1,15 @@
 sudo: required
 language: generic
 dist: xenial 
+os:
+        - osx
+        - linux
+cache:
+  directories:
+  - /usr/local/Homebrew
+  - /Users/travis/Library/Caches/Homebrew/
+  - /Users/travis/Library/Logs/Homebrew/
+
 
 addons:
   apt:
@@ -11,6 +20,17 @@ addons:
       sox
       git
       libwxgtk3.0-dev portaudio19-dev libhamlib-dev libasound2-dev libao-dev libgsm1-dev libsndfile-dev
-      
+  homebrew:
+    packages:
+    - sox
+    - wxmac 
+    - portaudio
+    - hamlib
+    - libsamplerate
+    - libsndfile
+    - libgsm
+    - speexdsp
+    - dylibbundler
+    update: true
 script:
-    - ./build_linux.sh
+    - FDV_MAKEOPTS="-j4" ./build_linux.sh 

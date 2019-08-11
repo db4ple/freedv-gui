@@ -4,6 +4,7 @@
 # Build script for Ubuntu and Fedora Linux, git pulls codec2 and
 # lpcnet repos so they are available for parallel development.
 
+
 export FREEDVGUIDIR=${PWD}
 export CODEC2DIR=$FREEDVGUIDIR/codec2
 export LPCNETDIR=$FREEDVGUIDIR/LPCNet
@@ -12,7 +13,8 @@ export LPCNETDIR=$FREEDVGUIDIR/LPCNet
 cd $FREEDVGUIDIR
 git clone https://github.com/drowe67/codec2.git
 cd codec2 && git checkout master && git pull
-mkdir -p build_linux && cd build_linux && rm -Rf * && cmake .. && make
+mkdir -p build_linux && cd build_linux && rm -Rf * && cmake .. && make $FDV_MAKEOPTS codec2
+
 
 # OK, build and test LPCNet
 cd $FREEDVGUIDIR
@@ -20,14 +22,15 @@ git clone https://github.com/drowe67/LPCNet.git
 cd $LPCNETDIR && git checkout master && git pull
 mkdir  -p build_linux && cd build_linux && rm -Rf *
 cmake -DCODEC2_BUILD_DIR=$CODEC2DIR/build_linux ..
-make
+make $FDV_MAKEOPTS
 # sanity check test
 cd src && sox ../../wav/wia.wav -t raw -r 16000 - | ./lpcnet_enc -s | ./lpcnet_dec -s > /dev/null
+
 
 # Re-build codec2 with LPCNet and test FreeDV 2020 support
 cd $CODEC2DIR/build_linux && rm -Rf *
 cmake -DLPCNET_BUILD_DIR=$LPCNETDIR/build_linux ..
-make VERBOSE=1
+make $FDV_MAKEOPTS codec2 freedv_tx freedv_rx
 # sanity check test
 cd src
 export LD_LIBRARY_PATH=$LPCNETDIR/build_linux/src
@@ -37,6 +40,4 @@ export LD_LIBRARY_PATH=$LPCNETDIR/build_linux/src
 cd $FREEDVGUIDIR && git pull
 mkdir  -p build_linux && cd build_linux && rm -Rf *
 cmake -DCMAKE_BUILD_TYPE=Debug -DCODEC2_BUILD_DIR=$CODEC2DIR/build_linux -DLPCNET_BUILD_DIR=$LPCNETDIR/build_linux ..
-make VERBOSE=1
-
-    
+make $FDV_MAKEOPTS 
